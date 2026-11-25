@@ -1,0 +1,38 @@
+#cloud-config
+# Custom Ubuntu Server autoinstall template used with:
+#   VBoxManage unattended install ... --script-template=vm/autoinstall_user_data.template
+# Based on VirtualBox's ubuntu_autoinstall_user_data, plus OpenSSH and a static
+# IP on the host-only adapter (VirtualBox host-only DHCP is disabled on this PC).
+autoinstall:
+  version: 1
+  apt:
+    fallback: offline-install
+  locale: en_US.UTF-8
+  keyboard:
+    layout: us
+  shutdown: reboot
+  storage:
+    layout:
+      name: direct
+  network:
+    version: 2
+    ethernets:
+      enp0s3:                 # Adapter 1 - NAT: internet access (apt, docker pull)
+        dhcp4: true
+      enp0s8:                 # Adapter 2 - Host-only: host <-> VM communication
+        dhcp4: false
+        addresses: [192.168.56.10/24]
+  ssh:
+    install-server: true
+    allow-pw: true
+    authorized-keys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJesHnLzRctYPtMivN/PradSmfYRuX1mLGj8ORSguy4z uni-vm-student
+  identity:
+    hostname: '@@VBOX_INSERT_HOSTNAME_WITHOUT_DOMAIN@@'
+    username: '@@VBOX_INSERT_USER_LOGIN@@'
+    realname: '@@VBOX_INSERT_USER_FULL_NAME@@'
+    password: '@@VBOX_INSERT_USER_PASSWORD_SHACRYPT512@@'
+  user-data:
+    timezone: Africa/Algiers
+  late-commands:
+    - curtin in-target --target=/target -- sh -c 'echo "@@VBOX_INSERT_USER_LOGIN@@ ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/90-student && chmod 440 /etc/sudoers.d/90-student'

@@ -28,7 +28,7 @@ app.secret_key = os.environ.get("SECRET_KEY", "dev-only-change-me")
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "admin")
-ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "")  # empty = admin login disabled
 APP_ENV = os.environ.get("APP_ENV", "local")
 SCHEMA_FILE = Path(__file__).with_name("schema.sql")
 
@@ -137,7 +137,9 @@ def health():
 # --------------------------------------------------------------------------- #
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == "POST":
+    if request.method == "POST" and not ADMIN_PASSWORD:
+        flash("Administration is disabled: ADMIN_PASSWORD is not configured.", "error")
+    elif request.method == "POST":
         user_ok = hmac.compare_digest(request.form.get("username", ""), ADMIN_USERNAME)
         pass_ok = hmac.compare_digest(request.form.get("password", ""), ADMIN_PASSWORD)
         if user_ok and pass_ok:
