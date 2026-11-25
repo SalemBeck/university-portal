@@ -28,7 +28,7 @@ app.secret_key = os.environ.get("SECRET_KEY", "dev-only-change-me")
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "admin")
-ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "")  # empty = admin login disabled
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD") or "admin123"  # demo default
 APP_ENV = os.environ.get("APP_ENV", "local")
 SCHEMA_FILE = Path(__file__).with_name("schema.sql")
 
