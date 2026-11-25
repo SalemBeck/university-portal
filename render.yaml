@@ -1,0 +1,31 @@
+# Environment 2 - Render Blueprint (PaaS).
+# Render builds the same Dockerfile, runs it as a web service and provisions
+# a managed PostgreSQL database. DATABASE_URL is injected automatically.
+databases:
+  - name: university-db
+    plan: free
+    region: frankfurt
+    databaseName: university
+    user: university
+
+services:
+  - type: web
+    name: university-portal
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: university-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ADMIN_USERNAME
+        value: admin
+      - key: ADMIN_PASSWORD
+        sync: false          # entered by hand in the Render dashboard, never committed
+      - key: APP_ENV
+        value: Render (PaaS)

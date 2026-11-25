@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Administration · Northvale University{% endblock %}
+{% block content %}
+<div class="row-between">
+  <h1>Manage announcements</h1>
+  <a class="btn" href="{{ url_for('admin_new') }}">+ New announcement</a>
+</div>
+<table>
+  <thead><tr><th>#</th><th>Title</th><th>Department</th><th>Published</th><th></th></tr></thead>
+  <tbody>
+  {% for a in announcements %}
+    <tr>
+      <td>{{ a.id }}</td>
+      <td>{{ a.title }}{% if a.updated_at %} <span class="tag">edited</span>{% endif %}</td>
+      <td>{{ a.department or 'General' }}</td>
+      <td>{{ a.published_at.strftime('%d %b %Y %H:%M') }}</td>
+      <td class="actions">
+        <a class="btn small" href="{{ url_for('admin_edit', ann_id=a.id) }}">Edit</a>
+        <form method="post" action="{{ url_for('admin_delete', ann_id=a.id) }}" class="inline"
+              onsubmit="return confirm('Delete announcement #{{ a.id }}?');">
+          <button class="btn small danger">Delete</button>
+        </form>
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="5" class="muted">No announcements.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

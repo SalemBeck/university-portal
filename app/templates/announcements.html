@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}News · Northvale University{% endblock %}
+{% block content %}
+<h1>News &amp; announcements</h1>
+<div class="list">
+  {% for a in announcements %}
+  <article class="card wide">
+    <div class="meta">#{{ a.id }} &middot; {{ a.published_at.strftime('%d %b %Y %H:%M') }}
+      {% if a.department %} &middot; {{ a.department }}{% else %} &middot; General{% endif %}
+      {% if a.updated_at %} &middot; <em>edited {{ a.updated_at.strftime('%d %b %H:%M') }}</em>{% endif %}</div>
+    <h3>{{ a.title }}</h3>
+    <p>{{ a.body }}</p>
+  </article>
+  {% else %}
+  <p class="muted">No announcements yet.</p>
+  {% endfor %}
+</div>
+{% endblock %}

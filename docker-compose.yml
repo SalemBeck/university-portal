@@ -1,0 +1,56 @@
+# Environment 1 - Docker inside the Ubuntu VirtualBox VM.
+#   docker compose up -d --build
+# Two containers on user-defined networks:
+#   uni-web : Flask/gunicorn app, published on VM port 8080 -> container 8000
+#   uni-db  : PostgreSQL 16, NOT published; reachable only on the internal "backend" network
+# Data persistence: named volume "uni_pgdata" mounted at /var/lib/postgresql/data
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: uni-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  web:
+    build: .
+    image: university-portal:1.0
+    container_name: uni-web
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      SECRET_KEY: ${SECRET_KEY}
+      ADMIN_USERNAME: ${ADMIN_USERNAME}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      APP_ENV: Docker on Ubuntu VM
+    ports:
+      - "8080:8000"
+    networks:
+      - frontend
+      - backend
+
+networks:
+  frontend:            # reachable through the published port 8080
+    name: uni_frontend
+  backend:             # internal: no route to/from outside, only web <-> db
+    name: uni_backend
+    internal: true
+
+volumes:
+  pgdata:
+    name: uni_pgdata

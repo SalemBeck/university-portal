@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if item else 'New' }} announcement · Northvale University{% endblock %}
+{% block content %}
+<div class="panel">
+  <h1>{{ 'Edit announcement #' ~ item.id if item else 'New announcement' }}</h1>
+  <form method="post">
+    <label>Title <input name="title" maxlength="200" required value="{{ item.title if item else request.form.get('title', '') }}"></label>
+    <label>Department
+      <select name="department_id">
+        <option value="">General (all university)</option>
+        {% for d in departments %}
+        <option value="{{ d.id }}" {{ 'selected' if item and item.department_id == d.id }}>{{ d.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Content <textarea name="body" rows="6" required>{{ item.body if item else request.form.get('body', '') }}</textarea></label>
+    <div class="row">
+      <button class="btn">{{ 'Save changes' if item else 'Publish' }}</button>
+      <a class="btn ghost" href="{{ url_for('admin') }}">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

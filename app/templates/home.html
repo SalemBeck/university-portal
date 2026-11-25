@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <h1>Welcome to Northvale University</h1>
+  <p>Northvale is a public university of science, engineering and humanities founded in 1984.
+     Around 12,000 students and 700 teachers study and work across five departments.
+     This portal lets students, teachers and visitors consult departments and the latest news.</p>
+  <div class="stats">
+    <div><span>{{ stats.departments }}</span>departments</div>
+    <div><span>{{ stats.announcements }}</span>announcements</div>
+  </div>
+</section>
+
+<h2>Recent announcements</h2>
+<div class="cards">
+  {% for a in recent %}
+  <article class="card">
+    <div class="meta">{{ a.published_at.strftime('%d %b %Y') }}{% if a.department %} &middot; {{ a.department }}{% endif %}</div>
+    <h3>{{ a.title }}</h3>
+    <p>{{ a.body }}</p>
+  </article>
+  {% else %}
+  <p class="muted">No announcements yet.</p>
+  {% endfor %}
+</div>
+<p><a class="btn" href="{{ url_for('announcements') }}">All announcements &rarr;</a></p>
+{% endblock %}
